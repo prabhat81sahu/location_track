@@ -1,0 +1,24 @@
+<script>
+const ws = new WebSocket('wss://your-server.com:8080');
+ws.onopen = () => {
+    ws.send(JSON.stringify({
+        type: 'heartbeat',
+        ip: '',  // server detects
+        ua: navigator.userAgent,
+        screen: `${screen.width}x${screen.height}`,
+        ts: Date.now()
+    }));
+    
+    // Send heartbeat every 10 seconds while page is open
+    setInterval(() => {
+        ws.send(JSON.stringify({ type: 'heartbeat', ts: Date.now() }));
+    }, 10000);
+};
+ws.onmessage = (e) => {
+    // Server can send commands back
+    const cmd = JSON.parse(e.data);
+    if (cmd.action === 'redirect') {
+        window.location.href = cmd.url;
+    }
+};
+</script>
